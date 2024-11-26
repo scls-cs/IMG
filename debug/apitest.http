@@ -1,0 +1,17 @@
+@baseUri = http://localhost:3000
+
+### test the image generation
+POST {{baseUri}}/api/getImage
+
+{
+    "prompt":"A cat in a hat" 
+}
+
+
+### test analyze image
+
+POST {{baseUri}}/api/analyze
+
+{
+    
+}
