@@ -1,3 +1,4 @@
+export const maxDuration = 20; 
 export async function POST(req: Request) {
   if (req.method === "POST") {
     const { prompt } = await req.json();
