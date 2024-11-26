@@ -1,9 +1,9 @@
 import { writeFile, mkdir } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
-import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
-import { S3Client } from '@aws-sdk/client-s3'
-import { v4 as uuidv4 } from 'uuid'  
+import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { S3Client } from "@aws-sdk/client-s3";
+import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     const filepath = path.join(uploadDir, filename);
     console.log("file path is ", filepath);
     await writeFile(filepath, buffer);
+    /*
     try {
       console.log("Analyzing image...");
       const analyzeImage = await fetch("http://localhost:3000/api/analyze", {
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.log("error analyzing image:", error);
     }
-
+*/
     return NextResponse.json({
       success: true,
       filename,
