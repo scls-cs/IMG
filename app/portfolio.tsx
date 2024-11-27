@@ -1,18 +1,63 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import Upload from "./upload";
+import { saveAs } from "file-saver";
 
-export default function () {
+export default function Portfolio() {
   const [img1, setImage1] = useState("");
   const [img2, setImage2] = useState("");
-
   const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [img_prompt, setPrompt] = useState("");
   const placeholderImage = [
     "https://i.redd.it/jtmst3lgzr1e1.jpeg",
     "https://i.redd.it/6andcl69p60e1.jpeg",
   ];
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setLoading(true);
+      setAnalyzing(true);
+      const uploadResponse = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const uploadResult = await uploadResponse.json();
+      if (uploadResult.success) {
+        const analyzeResponse = await fetch("/api/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ imageUrl: uploadResult.url }),
+        });
+
+        const analyzeResult = await analyzeResponse.json();
+        console.log(analyzeResult);
+        if (analyzeResult.success) {
+          setPrompt(analyzeResult.prompt);
+        } else {
+          console.error("Error analyzing image:", analyzeResult.error);
+        }
+      } else {
+        console.error("Error uploading file:", uploadResult.error);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    } finally {
+      setLoading(false);
+      setAnalyzing(false);
+    }
+  };
 
   const sendMessage = async () => {
     try {
@@ -28,6 +73,7 @@ export default function () {
       };
       const response = await fetch("/api/getImage", options);
       const images = await response.json();
+      console.log(images);
       if (images && images.length >= 2) {
         setImage1(images[0].url);
         setImage2(images[1].url);
@@ -38,6 +84,7 @@ export default function () {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <section className="py-12">
@@ -68,7 +115,7 @@ export default function () {
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Generating...
+                    {analyzing ? "Analyzing..." : "Generating..."}
                   </div>
                 ) : (
                   "Generate"
@@ -76,7 +123,11 @@ export default function () {
               </Button>
             </div>
           </div>
-          <Upload />
+
+          {/* 上传图片区域 */}
+          <div className="mx-auto max-w-2xl mb-12">
+            <input type="file" onChange={handleFileUpload} />
+          </div>
 
           {/* 图片展示区域 */}
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-2">

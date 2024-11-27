@@ -1,8 +1,9 @@
-export const maxDuration = 20; 
-export async function POST(req: Request) {
+import { NextRequest } from "next/server";
+
+export const maxDuration = 20;
+export async function POST(req: NextRequest) {
   if (req.method === "POST") {
     const { prompt } = await req.json();
-
     const options = {
       method: "POST",
       headers: {
@@ -12,7 +13,6 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         model: "stabilityai/stable-diffusion-3-5-large",
         prompt: prompt,
-        image_size: "768x512",
         batch_size: 2,
       }),
     };
